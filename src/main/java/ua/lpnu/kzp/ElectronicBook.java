@@ -12,11 +12,11 @@ public class ElectronicBook extends Book {
 
     public ElectronicBook(String title, String author, double fileSizeMb, double price) {
         super(title, author, BookFormat.ELECTRONIC);
-        if (fileSizeMb <= 0) {
-            throw new IllegalArgumentException("Розмір файлу мусить бути більшим за 0 МБ");
+        if (!Double.isFinite(fileSizeMb) || fileSizeMb <= 0) {
+            throw new IllegalArgumentException("Розмір файлу мусить бути скінченним числом більшим за 0 МБ");
         }
-        if (price < 0) {
-            throw new IllegalArgumentException("Ціна не може бути від'ємною");
+        if (!Double.isFinite(price) || price < 0) {
+            throw new IllegalArgumentException("Ціна не може бути від'ємною або некоректною");
         }
         this.fileSizeMb = fileSizeMb;
         this.price = price;

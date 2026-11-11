@@ -46,6 +46,23 @@ class BookTest {
     }
 
     @Test
+    @DisplayName("Перевірка відхилення NaN та нескінченності")
+    void testRejectsNaNAndInfinity() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new PrintedBook("Кобзар", "Шевченко", 100, Double.NaN));
+        assertThrows(IllegalArgumentException.class,
+                () -> new PrintedBook("Кобзар", "Шевченко", 100, Double.POSITIVE_INFINITY));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ElectronicBook("Місто", "Підмогильний", Double.NaN, 100.0));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ElectronicBook("Місто", "Підмогильний", Double.POSITIVE_INFINITY, 100.0));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ElectronicBook("Місто", "Підмогильний", 5.0, Double.NaN));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ElectronicBook("Місто", "Підмогильний", 5.0, Double.POSITIVE_INFINITY));
+    }
+
+    @Test
     @DisplayName("Перевірка відсіювання дублікатів у HashSet (equals/hashCode)")
     void testHashSetDeduplication() {
         Set<Book> set = new HashSet<>();

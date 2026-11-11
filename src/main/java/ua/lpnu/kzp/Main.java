@@ -14,6 +14,7 @@ import java.util.Locale;
 public class Main {
     public static void main(String[] args) {
         Path inputPath = Path.of("data", "input.csv");
+        Path outputPath = Path.of("out", "report.txt");
         List<Book> books = new ArrayList<>();
         int totalRows = 0;
         int validRows = 0;
@@ -56,5 +57,12 @@ public class Main {
         report.append(String.format(Locale.ROOT, "\nЗагальна річна вартість обслуговування каталогу: %.2f грн\n", totalAnnualCost));
 
         System.out.print(report);
+
+        try {
+            Files.createDirectories(outputPath.getParent());
+            Files.writeString(outputPath, report.toString(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            System.err.println("Помилка запису у файл звіту: " + e.getMessage());
+        }
     }
 }

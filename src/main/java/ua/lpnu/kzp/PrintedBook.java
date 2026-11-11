@@ -15,8 +15,8 @@ public class PrintedBook extends Book {
         if (pages <= 0) {
             throw new IllegalArgumentException("Кількість сторінок мусить бути більшою за 0");
         }
-        if (price < 0) {
-            throw new IllegalArgumentException("Ціна не може бути від'ємною");
+        if (!Double.isFinite(price) || price < 0) {
+            throw new IllegalArgumentException("Ціна не може бути від'ємною або некоректною");
         }
         this.pages = pages;
         this.price = price;
