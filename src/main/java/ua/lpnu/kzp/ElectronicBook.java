@@ -6,12 +6,12 @@ import java.util.Objects;
 /**
  * Електронна книжка (конкретний підклас).
  */
-public class ElectronicBook extends Book {
+public final class ElectronicBook extends Book {
     private final double fileSizeMb;
     private final double price;
 
-    public ElectronicBook(String title, String author, double fileSizeMb, double price) {
-        super(title, author, BookFormat.ELECTRONIC);
+    public ElectronicBook(String title, String author, int year, double fileSizeMb, double price) {
+        super(validatedTitle(title), validatedAuthor(author), validatedYear(year), BookFormat.ELECTRONIC);
         if (!Double.isFinite(fileSizeMb) || fileSizeMb <= 0) {
             throw new IllegalArgumentException("Розмір файлу мусить бути скінченним числом більшим за 0 МБ");
         }
@@ -24,6 +24,16 @@ public class ElectronicBook extends Book {
 
     public double getFileSizeMb() {
         return fileSizeMb;
+    }
+
+    /**
+     * Електронні книжки не мають фіксованої кількості друкованих сторінок.
+     *
+     * @return 0, оскільки кількість сторінок не застосовується до електронних книжок
+     */
+    @Override
+    public int getPages() {
+        return 0;
     }
 
     public double getPrice() {

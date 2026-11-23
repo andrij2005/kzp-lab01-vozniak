@@ -6,12 +6,12 @@ import java.util.Objects;
 /**
  * Друкована книжка (конкретний підклас).
  */
-public class PrintedBook extends Book {
+public final class PrintedBook extends Book {
     private final int pages;
     private final double price;
 
-    public PrintedBook(String title, String author, int pages, double price) {
-        super(title, author, BookFormat.PRINTED);
+    public PrintedBook(String title, String author, int year, int pages, double price) {
+        super(validatedTitle(title), validatedAuthor(author), validatedYear(year), BookFormat.PRINTED);
         if (pages <= 0) {
             throw new IllegalArgumentException("Кількість сторінок мусить бути більшою за 0");
         }
@@ -22,6 +22,7 @@ public class PrintedBook extends Book {
         this.price = price;
     }
 
+    @Override
     public int getPages() {
         return pages;
     }

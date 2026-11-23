@@ -6,24 +6,38 @@ import java.util.Objects;
 /**
  * Абстрактний базовий клас книжки для Лабораторної № 3.
  */
-public abstract class Book {
+public abstract sealed class Book permits PrintedBook, ElectronicBook {
     private final String title;
     private final String author;
+    private final int year;
     private final BookFormat format;
 
-    protected Book(String title, String author, BookFormat format) {
+    protected Book(String title, String author, int year, BookFormat format) {
+        this.title = title;
+        this.author = author;
+        this.year = year;
+        this.format = format;
+    }
+
+    protected static String validatedTitle(String title) {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("Назва книжки не може бути порожньою");
         }
+        return title.trim();
+    }
+
+    protected static String validatedAuthor(String author) {
         if (author == null || author.isBlank()) {
             throw new IllegalArgumentException("Автор не може бути порожнім");
         }
-        if (format == null) {
-            throw new IllegalArgumentException("Формат книжки не може бути null");
+        return author.trim();
+    }
+
+    protected static int validatedYear(int year) {
+        if (year <= 0) {
+            throw new IllegalArgumentException("Рік видання має бути більшим за 0");
         }
-        this.title = title.trim();
-        this.author = author.trim();
-        this.format = format;
+        return year;
     }
 
     public String getTitle() {
@@ -34,9 +48,16 @@ public abstract class Book {
         return author;
     }
 
+    public int getYear() {
+        return year;
+    }
+
     public BookFormat getFormat() {
         return format;
     }
+
+    /** Повертає кількість друкованих сторінок або 0, якщо вона не застосовується. */
+    public abstract int getPages();
 
     /**
      * Поліморфний метод розрахунку річної вартості обслуговування/зберігання.
@@ -51,40 +72,22 @@ public abstract class Book {
             throw new IllegalArgumentException("Рядок CSV не може бути порожнім");
         }
         String[] parts = line.split(";", -1);
-        if (parts.length < 4) {
-            throw new IllegalArgumentException("Некоректний формат CSV: недостатньо полів");
+        if (parts.length != 6) {
+            throw new IllegalArgumentException("Некоректний формат CSV: очікується 6 полів");
         }
 
         String title = parts[0].trim();
         String author = parts[1].trim();
+        int year = Integer.parseInt(parts[2].trim());
+        double price = Double.parseDouble(parts[4].trim());
+        BookFormat format = BookFormat.valueOf(parts[5].trim().toUpperCase(Locale.ROOT));
 
-        // 1. Стандартний формат з 4 полів (PrintedBook): назва;автор;сторінки;ціна
-        if (parts.length == 4) {
-            int pages = Integer.parseInt(parts[2].trim());
-            double price = Double.parseDouble(parts[3].trim());
-            return new PrintedBook(title, author, pages, price);
-        }
-
-        // 2. Формат з 5 полів, де ELECTRONIC стоїть 3-м полем: назва;автор;ELECTRONIC;розмірМб;ціна
-        String p2 = parts[2].trim().toUpperCase(Locale.ROOT);
-        if ("ELECTRONIC".equals(p2)) {
-            double fileSizeMb = Double.parseDouble(parts[3].trim());
-            double price = Double.parseDouble(parts[4].trim());
-            return new ElectronicBook(title, author, fileSizeMb, price);
-        }
-
-        // 3. Альтернативний формат з 5 полів, де ELECTRONIC стоїть 5-м полем: назва;автор;розмірМб;ціна;ELECTRONIC
-        String p4 = parts[4].trim().toUpperCase(Locale.ROOT);
-        if ("ELECTRONIC".equals(p4)) {
-            double fileSizeMb = Double.parseDouble(parts[2].trim());
-            double price = Double.parseDouble(parts[3].trim());
-            return new ElectronicBook(title, author, fileSizeMb, price);
-        }
-
-        // За замовчуванням для 5 полів
-        int pages = Integer.parseInt(parts[2].trim());
-        double price = Double.parseDouble(parts[3].trim());
-        return new PrintedBook(title, author, pages, price);
+        return switch (format) {
+            case PRINTED -> new PrintedBook(
+                    title, author, year, Integer.parseInt(parts[3].trim()), price);
+            case ELECTRONIC -> new ElectronicBook(
+                    title, author, year, Double.parseDouble(parts[3].trim()), price);
+        };
     }
 
     @Override
@@ -94,12 +97,13 @@ public abstract class Book {
         Book book = (Book) o;
         return Objects.equals(title, book.title) &&
                Objects.equals(author, book.author) &&
+               year == book.year &&
                format == book.format;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, author, format);
+        return Objects.hash(title, author, year, format);
     }
 
     @Override
